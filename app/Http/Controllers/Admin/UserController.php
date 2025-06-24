@@ -52,6 +52,12 @@ class UserController extends Controller
             'text' => 'El usuario ha sido creado exitosamente.',
         ]);
 
+        if($user::role('Paciente'))  // Check if the user has the 'admin' role
+        {
+            $patient = $user->patient()->create([]);
+            return redirect()->route('admin.patients.edit', $patient);
+        }
+
         return redirect()->route('admin.users.index');
     }
 
