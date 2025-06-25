@@ -50,6 +50,7 @@
                                         <label>
                                             <input type="checkbox"
                                                 x-on:click="toggleHourBlock('{{ $indexDay }}', '{{ $hour }}', $el.checked)"
+                                                :checked="isHourBlockChecked('{{ $indexDay }}', '{{ $hour }}')"
                                                 class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                             <span class="ml-2 text-sm font-medium text-gray-700">
                                                 Todos
@@ -103,7 +104,21 @@
                             let formattedStartTime = startTime.toTimeString().split(' ')[0];
                             this.schedule[indexDay][formattedStartTime] = checked;
                         }
+                    },
+                    isHourBlockChecked(indexDay, hourBlock) {
+                        let hour = new Date(`1970-01-01T${hourBlock}`);
+                        for($i = 0; $i < this.intervals; $i++)
+                        { 
+                            let startTime = new Date(hour.getTime() + ($i * this.apointment_duration * 60000));
+                            let formattedStartTime = startTime.toTimeString().split(' ')[0];
+                            if (!this.schedule[indexDay][formattedStartTime]) {
+                                return false;
+                            }
+                        }
+
+                        return true;
                     }
+                    
                 }
             }
 
