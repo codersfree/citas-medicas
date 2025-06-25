@@ -10,4 +10,6 @@ title="Doctores | Coders Free"
     ]
 ]">
 
+    @livewire('admin.datatables.doctor-table')
+
 </x-admin-layout>

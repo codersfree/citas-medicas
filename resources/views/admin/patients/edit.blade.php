@@ -21,13 +21,17 @@
 
             <div class="lg:flex lg:justify-between lg:items-center">
                 <div class="flex items-center space-x-5">
-                    <img src="{{ $patient->user->patient->user->profile_photo_url }}"
+                    <img src="{{ $patient->user->profile_photo_url }}"
                         class="h-20 w-20 rounded-full object-cover object-center" alt="{{ $patient->user->name }}">
 
 
                     <div>
-                        <p class="text-2xl font-bold text-gray-900">
+                        <p class="text-2xl font-bold text-gray-900 mb-1">
                             {{ $patient->user->name }}
+                        </p>
+
+                        <p class="text-sm font-semibold text-gray-500">
+                            DNI: {{ $patient->user->dni ?? 'N/A' }}
                         </p>
                     </div>
                 </div>
