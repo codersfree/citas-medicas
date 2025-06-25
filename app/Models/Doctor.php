@@ -10,7 +10,8 @@ class Doctor extends Model
         'user_id',
         'speciality_id',
         'medical_license_number',
-        'biography'
+        'biography',
+        'active',
     ];
 
     //Relaciones inversa
