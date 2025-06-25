@@ -50,4 +50,9 @@ class DoctorController extends Controller
 
         return redirect()->route('admin.doctors.edit', $doctor);
     }
+
+    public function schedules(Doctor $doctor)
+    {
+        return view('admin.doctors.schedules', compact('doctor'));
+    }
 }
