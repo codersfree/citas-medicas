@@ -11,17 +11,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('schedules', function (Blueprint $table) {
+        Schema::create('appointments', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('patient_id')
+                ->constrained()
+                ->onDelete('cascade');
 
             $table->foreignId('doctor_id')
                 ->constrained()
                 ->onDelete('cascade');
 
-            $table->unsignedTinyInteger('day_of_week');
+            $table->date('date');
 
             $table->time('start_time');
-            /* $table->time('end_time'); */
+            $table->time('end_time');
+
+            $table->integer('duration')->default(15);
+
+            $table->text('reason')->nullable();
+
+            $table->tinyInteger('status')->default(1); // Assuming 1 = scheduled, 2 = completed, 3 = cancelled
 
             $table->timestamps();
         });
@@ -32,6 +42,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('schedules');
+        Schema::dropIfExists('appointments');
     }
 };
