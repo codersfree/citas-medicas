@@ -67,25 +67,25 @@
 
     @if ($appointment['date'])
         
-        @if (count($availability))
+        @if (count($availabilities))
 
             <div class="grid lg:grid-cols-3 gap-4 lg:gap-8">
-                <div class="col-span-1 lg:col-span-2">
+                <div class="col-span-1 lg:col-span-2 space-y-6">
 
-                    @foreach ($availability as $doctor)
-                        
+                    @foreach ($availabilities as $availability)
+
                         <x-wire-card>
 
                             <div class="flex items-center space-x-4">
-                                <img class="h-16 w-16 rounded-full object-cover" src="{{$doctor->user->profile_photo_url}}" alt="{{$doctor->user->name}}">
+                                <img class="h-16 w-16 rounded-full object-cover" src="{{$availability['doctor']->user->profile_photo_url}}" alt="{{$availability['doctor']->user->name}}">
 
                                 <div>
                                     <p class="text-xl font-bold text-slate-800">
-                                        {{ $doctor->user->name }}
+                                        {{ $availability['doctor']->user->name }}
                                     </p>
 
                                     <p class="text-sm text-indigo-600 font-medium">
-                                        {{ $doctor->speciality?->name ?? 'Sin especialidad' }}
+                                        {{ $availability['doctor']->speciality?->name ?? 'Sin especialidad' }}
                                     </p>
                                 </div>
                             </div>
@@ -97,15 +97,16 @@
                                     Horarios disponibles:
                                 </p>
 
-
                                 <ul class="grid grid-col-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
 
-                                    @foreach ($doctor->schedules as $schedule)
+                                    @foreach ($availability['schedules'] as $schedule)
+
                                         <li>
                                             <x-wire-button
-                                                x-on:click="selectSchedule({{$doctor->id}}, '{{$schedule->start_time->format('H:i:s')}}')"
+                                                x-on:click="selectSchedule({{$availability['doctor']->id}}, '{{$schedule['start_time']}}')"
+                                                x-bind:class="selectedSchedules.doctor_id === {{$availability['doctor']->id}} && selectedSchedules.schedules.includes('{{$schedule['start_time']}}') ? 'opacity-50' : ''"
                                                 class="w-full">
-                                                {{$schedule->start_time->format('H:i:s')}}
+                                                {{$schedule['start_time']}}
                                             </x-wire-button>
                                         </li>
                                     @endforeach
@@ -132,7 +133,6 @@
             </x-wire-card>
         @endif
 
-
     @endif
 
     @push('js')
@@ -144,8 +144,64 @@
                     selectedSchedules: @entangle('selectedSchedules').live,
                     selectSchedule(doctorId, schedule)
                     {
-                        this.selectedSchedules.doctor_id = doctorId;
-                        this.selectedSchedules.schedules = schedule;
+                        if (this.selectedSchedules.doctor_id !== doctorId) {
+                            this.selectedSchedules = {
+                                doctor_id: doctorId,
+                                schedules: [schedule]
+                            };
+
+                            return;
+                        }
+
+                        let currentSchedules = this.selectedSchedules.schedules;
+                        let newSchedules = [];
+
+                        if (currentSchedules.includes(schedule)) {
+                            newSchedules = currentSchedules.filter(s => s !== schedule);
+                        }else{
+                            newSchedules = [...currentSchedules, schedule];
+                        }
+
+
+                        if (this.isContiguous(newSchedules)) {
+                            this.selectedSchedules = {
+                                doctor_id: doctorId,
+                                schedules: newSchedules
+                            };
+                        }else{
+                            this.selectedSchedules = {
+                                doctor_id: doctorId,
+                                schedules: [schedule]
+                            };
+                        }
+                        
+                    },
+                    isContiguous(schedules)
+                    {
+                        if(schedules.length < 2) {
+                            return true;
+                        }
+
+                        let sortedSchedules = schedules.sort();
+
+                        for(let i = 0; i < sortedSchedules.length - 1; i++)
+                        {
+                            let currentTime = sortedSchedules[i];
+                            let nextTime = sortedSchedules[i + 1];
+
+                            if (this.calculateNextTime(currentTime) !== nextTime) {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    },
+                    calculateNextTime(time)
+                    {
+                        let date = new Date(`1970-01-01T${time}`);
+                        let duration = parseInt("{{ config('schedule.appointment_duration') }}"); 
+                        date.setMinutes(date.getMinutes() + 15);
+                        return date.toTimeString().split(' ')[0];
                     }
                 }
             }
