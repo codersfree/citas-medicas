@@ -121,7 +121,87 @@
                 </div>
 
                 <div class="col-span-1">
-                    @json($selectedSchedules)
+
+                    <x-wire-card>
+                        <p class="text-xl font-semibold mb-4 text-slate-800">
+                            Resumen de la cita
+                        </p>
+
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">
+                                    Doctor:
+                                </span>
+
+                                <span class="font-semibold text-slate-700">
+                                    {{ $this->doctorName }}
+                                </span>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">
+                                    Fecha:
+                                </span>
+
+                                <span class="font-semibold text-slate-700">
+                                    {{ $appointment['date'] }}
+                                </span>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">
+                                    Horario:
+                                </span>
+
+                                <span class="font-semibold text-slate-700">
+                                    @if ($appointment['duration'])
+                                        {{ $appointment['start_time'] }} - {{ $appointment['end_time'] }}
+                                    @else
+                                        Por definir
+                                    @endif
+                                </span>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">
+                                    Duración:
+                                </span>
+
+                                <span class="font-semibold text-slate-700">
+                                    {{ $appointment['duration'] ?: 0 }} minutos
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="space-y-6">
+                            <x-wire-select
+                                label="Paciente"
+                                placeholder="Seleccione un paciente"
+                                :async-data="route('api.patients.index')"
+                                wire:model="appointment.patient_id"
+                                option-label="name"
+                                option-value="id"
+                            />
+
+                            <x-wire-textarea
+                                label="Motivo de la cita"
+                                placeholder="Ingrese el motivo de la cita"
+                                wire:model="appointment.reason" />
+
+                            <x-wire-button 
+                                wire:click="save"
+                                spinner="save"
+                                class="w-full">
+
+                                Confirmar cita
+
+                            </x-wire-button>
+                        </div>
+                    </x-wire-card>
+
                 </div>
             </div>
 
